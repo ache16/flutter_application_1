@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart' hide Response;
+import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import '../utils/app_logger.dart';
 import 'storage_service.dart';
@@ -6,10 +6,10 @@ import 'storage_service.dart';
 class ApiService extends GetxService {
   static const String baseUrl = 'http://211.159.186.157:3000/api';
   
-  late Dio _dio;
+  late dio.Dio _dio;
   final _isConnected = true.obs;
   
-  Dio get dio => _dio;
+  dio.Dio get dio => _dio;
   bool get isConnected => _isConnected.value;
 
   @override
@@ -19,7 +19,7 @@ class ApiService extends GetxService {
   }
 
   void _initDio() {
-    _dio = Dio(BaseOptions(
+    _dio = dio.Dio(dio.BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
@@ -30,7 +30,7 @@ class ApiService extends GetxService {
       },
     ));
 
-    _dio.interceptors.add(InterceptorsWrapper(
+    _dio.interceptors.add(dio.InterceptorsWrapper(
       onRequest: (options, handler) {
         // 添加认证令牌
         final storage = Get.find<StorageService>();
@@ -47,7 +47,7 @@ class ApiService extends GetxService {
         AppLogger.d('📥 响应: ${response.statusCode} ${response.requestOptions.path}');
         return handler.next(response);
       },
-      onError: (error, handler) {
+      onError: (dio.DioException error, handler) {
         _handleError(error);
         return handler.next(error);
       },
@@ -73,21 +73,21 @@ class ApiService extends GetxService {
     );
   }
 
-  bool _shouldRetry(DioException error) {
-    return error.type == DioExceptionType.connectionTimeout ||
-           error.type == DioExceptionType.sendTimeout ||
-           error.type == DioExceptionType.receiveTimeout ||
+  bool _shouldRetry(dio.DioException error) {
+    return error.type == dio.DioExceptionType.connectionTimeout ||
+           error.type == dio.DioExceptionType.sendTimeout ||
+           error.type == dio.DioExceptionType.receiveTimeout ||
            (error.response?.statusCode != null && error.response!.statusCode! >= 500);
   }
 
-  void _handleError(DioException error) {
+  void _handleError(dio.DioException error) {
     _isConnected.value = false;
     
-    if (error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.sendTimeout ||
-        error.type == DioExceptionType.receiveTimeout) {
+    if (error.type == dio.DioExceptionType.connectionTimeout ||
+        error.type == dio.DioExceptionType.sendTimeout ||
+        error.type == dio.DioExceptionType.receiveTimeout) {
       AppLogger.e('⏱️ 请求超时');
-    } else if (error.type == DioExceptionType.connectionError) {
+    } else if (error.type == dio.DioExceptionType.connectionError) {
       AppLogger.e('📡 网络连接失败');
     } else if (error.response?.statusCode == 401) {
       AppLogger.w('🔒 认证失效，需要重新登录');
@@ -114,63 +114,69 @@ class ApiService extends GetxService {
   }
 
   // REST API 方法
-  Future<Response> get(
+  Future<dynamic> get(
     String path, {
     Map<String, dynamic>? queryParameters,
-    Options? options,
+    dio.Options? options,
   }) async {
-    return await _dio.get(
+    final response = await _dio.get(
       path,
       queryParameters: queryParameters,
       options: options,
     );
+    return response;
   }
 
-  Future<Response> post(
+  Future<dynamic> post(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
   }) async {
-    return await _dio.post(
+    final response = await _dio.post(
       path,
       data: data,
       queryParameters: queryParameters,
     );
+    return response;
   }
 
-  Future<Response> put(
+  Future<dynamic> put(
     String path, {
     dynamic data,
   }) async {
-    return await _dio.put(path, data: data);
+    final response = await _dio.put(path, data: data);
+    return response;
   }
 
-  Future<Response> patch(
+  Future<dynamic> patch(
     String path, {
     dynamic data,
   }) async {
-    return await _dio.patch(path, data: data);
+    final response = await _dio.patch(path, data: data);
+    return response;
   }
 
-  Future<Response> delete(String path) async {
-    return await _dio.delete(path);
+  Future<dynamic> delete(String path) async {
+    final response = await _dio.delete(path);
+    return response;
   }
 
   // 上传文件
-  Future<Response> uploadFile(
+  Future<dynamic> uploadFile(
     String path,
     String filePath, {
     String fieldName = 'file',
-    ProgressCallback? onSendProgress,
+    dio.ProgressCallback? onSendProgress,
   }) async {
-    final formData = FormData.fromMap({
-      fieldName: await MultipartFile.fromFile(filePath),
+    final formData = dio.FormData.fromMap({
+      fieldName: await dio.MultipartFile.fromFile(filePath),
     });
 
-    return await _dio.post(
+    final response = await _dio.post(
       path,
       data: formData,
       onSendProgress: onSendProgress,
     );
+    return response;
   }
 }
