@@ -96,30 +96,87 @@ router.get('/unread/count', authMiddleware, (req, res) => {
 
 // 获取最近联系人列表
 router.get('/recent/list', authMiddleware, (req, res) => {
+  const userId = req.userId;
+  
+  // 先获取有聊天记录的联系人ID列表
   db.all(
     `SELECT 
        CASE 
-         WHEN m.sender_id = ? THEN m.receiver_id 
-         ELSE m.sender_id 
+         WHEN sender_id = ? THEN receiver_id 
+         ELSE sender_id 
        END as contact_id,
-       u.nickname, u.avatar, u.username,
-       MAX(m.created_at) as last_message_time,
-       (SELECT content FROM messages 
-        WHERE ((sender_id = ? AND receiver_id = contact_id) OR (sender_id = contact_id AND receiver_id = ?))
-        ORDER BY created_at DESC LIMIT 1) as last_message,
-       (SELECT COUNT(*) FROM messages WHERE sender_id = contact_id AND receiver_id = ? AND is_read = 0) as unread_count
-     FROM messages m
-     JOIN users u ON u.id = CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END
-     WHERE m.sender_id = ? OR m.receiver_id = ?
+       MAX(created_at) as last_message_time
+     FROM messages 
+     WHERE sender_id = ? OR receiver_id = ?
      GROUP BY contact_id
      ORDER BY last_message_time DESC
      LIMIT 20`,
-    [req.userId, req.userId, req.userId, req.userId, req.userId, req.userId, req.userId],
-    (err, rows) => {
+    [userId, userId, userId],
+    (err, contacts) => {
       if (err) {
+        console.error('获取联系人失败:', err);
         return res.status(500).json({ error: '获取最近联系人失败' });
       }
-      res.json(rows);
+      
+      if (contacts.length === 0) {
+        return res.json([]);
+      }
+      
+      // 获取每个联系人的详细信息
+      const contactIds = contacts.map(c => c.contact_id);
+      const placeholders = contactIds.map(() => '?').join(',');
+      
+      db.all(
+        `SELECT id, nickname, avatar, username FROM users WHERE id IN (${placeholders})`,
+        contactIds,
+        (err, users) => {
+          if (err) {
+            console.error('获取用户信息失败:', err);
+            return res.status(500).json({ error: '获取用户信息失败' });
+          }
+          
+          // 获取最后一条消息和未读数
+          const result = contacts.map(contact => {
+            const user = users.find(u => u.id === contact.contact_id) || {};
+            return {
+              contact_id: contact.contact_id,
+              nickname: user.nickname,
+              avatar: user.avatar,
+              username: user.username,
+              last_message_time: contact.last_message_time
+            };
+          });
+          
+          // 异步获取每条的最后消息和未读数
+          let completed = 0;
+          result.forEach((item, index) => {
+            // 获取最后一条消息
+            db.get(
+              `SELECT content FROM messages 
+               WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+               ORDER BY created_at DESC LIMIT 1`,
+              [userId, item.contact_id, item.contact_id, userId],
+              (err, msg) => {
+                if (msg) result[index].last_message = msg.content;
+                
+                // 获取未读数
+                db.get(
+                  `SELECT COUNT(*) as count FROM messages 
+                   WHERE sender_id = ? AND receiver_id = ? AND is_read = 0`,
+                  [item.contact_id, userId],
+                  (err, unread) => {
+                    result[index].unread_count = unread ? unread.count : 0;
+                    completed++;
+                    if (completed === result.length) {
+                      res.json(result);
+                    }
+                  }
+                );
+              }
+            );
+          });
+        }
+      );
     }
   );
 });
