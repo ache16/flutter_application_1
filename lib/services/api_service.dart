@@ -55,7 +55,7 @@ class ApiService extends GetxService {
 
     // 添加重试拦截器
     _dio.interceptors.add(
-      QueuedInterceptorsWrapper(
+      dio.QueuedInterceptorsWrapper(
         onError: (error, handler) async {
           if (_shouldRetry(error)) {
             AppLogger.w('🔄 请求失败，准备重试...');
