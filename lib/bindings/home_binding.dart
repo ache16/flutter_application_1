@@ -27,6 +27,7 @@ class AuthController extends GetxController {
   
   bool get isLoading => _isLoading.value;
   Map<String, dynamic>? get user => _user.value;
+  set user(Map<String, dynamic>? value) => _user.value = value;
   bool get isLoggedIn => _user.value != null;
 
   final ApiService _api = Get.find();
@@ -201,8 +202,8 @@ class ChatController extends GetxController {
   }
 
   void _calculateUnreadCount() {
-    _unreadCount.value = _recentChats.fold(0, (sum, chat) {
-      return sum + (chat['unread_count'] ?? 0);
+    _unreadCount.value = _recentChats.fold<int>(0, (sum, chat) {
+      return sum + (chat['unread_count'] ?? 0) as int;
     });
   }
 }

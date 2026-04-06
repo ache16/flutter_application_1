@@ -110,8 +110,8 @@ class AppTheme {
     );
   }
 
-  static CardTheme _cardTheme(Brightness brightness) {
-    return CardTheme(
+  static CardThemeData _cardTheme(Brightness brightness) {
+    return CardThemeData(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: brightness == Brightness.light 

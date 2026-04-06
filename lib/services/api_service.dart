@@ -1,6 +1,7 @@
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' hide Response;
 import 'package:get/get.dart';
 import '../utils/app_logger.dart';
+import 'storage_service.dart';
 
 class ApiService extends GetxService {
   static const String baseUrl = 'http://211.159.186.157:3000/api';
@@ -173,6 +174,3 @@ class ApiService extends GetxService {
     );
   }
 }
-
-// 需要导入 StorageService
-import 'storage_service.dart';

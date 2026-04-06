@@ -65,7 +65,7 @@ class MomentsScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.grey[200],
-                        child: Text(moment['user']['nickname'][0]),
+                        child: Text((moment['user']['nickname'] as String)[0]),
                       ),
                       SizedBox(width: 12.w),
                       Expanded(
@@ -73,7 +73,7 @@ class MomentsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              moment['user']['nickname'],
+                              moment['user']['nickname'] as String,
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
                             ),
                             Text(

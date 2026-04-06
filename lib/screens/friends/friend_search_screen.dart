@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import '../../routes/app_pages.dart';
 import '../../services/api_service.dart';
 import '../../utils/app_utils.dart';

@@ -110,9 +110,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.delete_forever, color: Colors.red),
                   title: const Text('清除缓存', style: TextStyle(color: Colors.red)),
-                  onTap: () async {
-                    await Get.find<StorageService>().clearCache();
-                    // ignore: use_build_context_synchronously
+                  onTap: () {
+                    Get.find<StorageService>().clearCache();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('缓存已清除')),
                     );
