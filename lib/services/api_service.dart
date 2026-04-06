@@ -9,7 +9,7 @@ class ApiService extends GetxService {
   late dio.Dio _dio;
   final _isConnected = true.obs;
   
-  dio.Dio get dio => _dio;
+  dio.Dio get dioClient => _dio;
   bool get isConnected => _isConnected.value;
 
   @override
