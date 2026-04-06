@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../../bindings/auth_binding.dart';
 import '../../bindings/home_binding.dart';
 import '../../routes/app_pages.dart';
 import '../../services/storage_service.dart';

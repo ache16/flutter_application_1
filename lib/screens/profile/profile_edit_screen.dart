@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../../bindings/auth_binding.dart';
 import '../../bindings/home_binding.dart';
 import '../../services/api_service.dart';
 import '../../services/storage_service.dart';
@@ -33,7 +34,7 @@ class ProfileEditScreen extends GetView<AuthController> {
                 });
                 
                 // 更新本地用户信息
-                final updatedUser = {...user!};
+                final updatedUser = Map<String, dynamic>.from(user!);
                 updatedUser['nickname'] = nicknameController.text.trim();
                 updatedUser['bio'] = bioController.text.trim();
                 await Get.find<StorageService>().setUser(updatedUser);

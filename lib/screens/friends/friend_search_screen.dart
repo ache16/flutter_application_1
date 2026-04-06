@@ -39,7 +39,7 @@ class _FriendSearchScreenState extends State<FriendSearchScreen> {
       await Get.find<ApiService>().post('/friends/request', data: {'friendId': friendId});
       AppUtils.showSuccess('好友请求已发送');
     } catch (e) {
-      final error = e is DioException ? e.response?.data?['error'] : null;
+      final error = e is dio.DioException ? (e.response?.data as Map<String, dynamic>?)?['error'] : null;
       AppUtils.showError(error ?? '发送失败');
     }
   }
