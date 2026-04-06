@@ -48,7 +48,7 @@ dependencies:
   
   # 表情/富文本
   emoji_picker_flutter: ^1.6.4
-  flutter_quill: ^9.2.12
+  flutter_quill: ^8.4.3
   
   # 动画
   flutter_animate: ^4.3.0
