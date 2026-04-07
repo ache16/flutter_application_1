@@ -30,7 +30,7 @@ class HomeScreen extends GetView<HomeController> {
           NavigationDestination(
             icon: const Icon(Icons.book_outlined),
             selectedIcon: const Icon(Icons.book),
-            label: '日记',
+            label: '忆记',
           ),
           NavigationDestination(
             icon: const Icon(Icons.people_outline),
